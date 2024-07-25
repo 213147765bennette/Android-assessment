@@ -1,7 +1,12 @@
 package com.glucode.about_you.engineers
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -12,7 +17,7 @@ import com.glucode.about_you.mockdata.MockData
 
 class EngineersFragment : Fragment() {
     private lateinit var binding: FragmentEngineersBinding
-
+    private lateinit var sortedList: List<Engineer>
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,8 +35,21 @@ class EngineersFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_years) {
-            return true
+        when (item.itemId) {
+            R.id.action_years -> {
+                sortedList = MockData.engineers.sortedBy { it.quickStats.years }
+                setUpEngineersList(sortedList)
+            }
+
+            R.id.action_coffees -> {
+                sortedList = MockData.engineers.sortedBy { it.quickStats.coffees }
+                setUpEngineersList(sortedList)
+            }
+
+            R.id.action_bugs -> {
+                sortedList = MockData.engineers.sortedBy { it.quickStats.bugs }
+                setUpEngineersList(sortedList)
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -40,13 +58,18 @@ class EngineersFragment : Fragment() {
         binding.list.adapter = EngineersRecyclerViewAdapter(engineers) {
             goToAbout(it)
         }
-        val dividerItemDecoration = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+        val dividerItemDecoration =
+            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
         binding.list.addItemDecoration(dividerItemDecoration)
     }
 
     private fun goToAbout(engineer: Engineer) {
         val bundle = Bundle().apply {
             putString("name", engineer.name)
+            putString("role", engineer.role)
+            putInt("years", engineer.quickStats.years)
+            putInt("coffees", engineer.quickStats.coffees)
+            putInt("bugs", engineer.quickStats.bugs)
         }
         findNavController().navigate(R.id.action_engineersFragment_to_aboutFragment, bundle)
     }
